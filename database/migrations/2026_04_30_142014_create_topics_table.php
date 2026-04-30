@@ -10,22 +10,18 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create("feedbacks", function (Blueprint $table) {
+        Schema::create("topics", function (Blueprint $table) {
             $table->ulid("id")->primary();
-            $table
-                ->foreignUlid("student_id")
-                ->constrained("students")
-                ->cascadeOnDelete();
             $table
                 ->foreignUlid("office_id")
                 ->constrained("offices")
                 ->cascadeOnDelete();
-            $table->text("raw_text");
-            $table->boolean("is_anonymous")->default(false);
-            $table->boolean("is_summarized")->default(false);
-            $table
-                ->enum("status", ["pending", "processed"])
-                ->default("pending");
+            $table->string("label");
+            $table->json("keywords");
+            $table->integer("feedback_count")->default(0);
+            $table->float("cluster_x")->nullable();
+            $table->float("cluster_y")->nullable();
+
             $table->timestamps();
         });
     }
@@ -35,6 +31,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists("feedbacks");
+        Schema::dropIfExists("topics");
     }
 };

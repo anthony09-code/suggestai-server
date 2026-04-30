@@ -33,4 +33,9 @@ class Student extends Authenticatable
             "is_active" => "boolean",
         ];
     }
+
+    public function feedbacks()
+    {
+        return $this->hasMany(Feedback::class, "student_id");
+    }
 }

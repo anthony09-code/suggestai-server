@@ -10,36 +10,40 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[
     Fillable([
-        "student_id",
+        "user_id",
         "office_id",
-        "raw_text",
-        "status",
-        "is_anonymous",
-        "is_summarized",
+        "session_id",
+        "title",
+        "format",
+        "file_path",
+        "generated_at",
     ]),
 ]
-class Feedback extends Model
+class Report extends Model
 {
     use HasUlids, HasFactory;
 
-    protected $table = "feedbacks";
+    protected $table = "reports";
 
     protected function casts(): array
     {
         return [
-            "status" => "string",
-            "is_anonymous" => "boolean",
-            "is_summarized" => "boolean",
+            "generated_at" => "datetime",
         ];
     }
 
-    public function student(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(Student::class, "student_id");
+        return $this->belongsTo(User::class, "user_id");
     }
 
     public function office(): BelongsTo
     {
         return $this->belongsTo(Office::class, "office_id");
+    }
+
+    public function session(): BelongsTo
+    {
+        return $this->belongsTo(AnalysisSession::class, "session_id");
     }
 }
