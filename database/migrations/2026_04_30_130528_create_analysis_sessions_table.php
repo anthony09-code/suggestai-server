@@ -10,22 +10,30 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create("feedbacks", function (Blueprint $table) {
+        Schema::create("analysis_sessions", function (Blueprint $table) {
             $table->ulid("id")->primary();
             $table
-                ->foreignUlid("student_id")
-                ->constrained("students")
+                ->foreignUlid("user_id")
+                ->constrained("users")
                 ->cascadeOnDelete();
             $table
                 ->foreignUlid("office_id")
                 ->constrained("offices")
                 ->cascadeOnDelete();
-            $table->text("raw_text");
-            $table->boolean("is_anonymous")->default(false);
-            $table->boolean("is_summarized")->default(false);
+            $table->integer("feedback_count");
+            $table->integer("topic_count");
             $table
-                ->enum("status", ["pending", "processed"])
+                ->enum("status", [
+                    "pending",
+                    "processing",
+                    "completed",
+                    "failed",
+                ])
                 ->default("pending");
+            $table->date("date_from");
+            $table->date("date_to");
+            $table->timestamp("started_at")->nullable();
+            $table->timestamp("completed_at")->nullable();
             $table->timestamps();
         });
     }
@@ -35,6 +43,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists("feedbacks");
+        Schema::dropIfExists("analysis_sessions");
     }
 };
