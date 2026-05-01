@@ -32,16 +32,25 @@ class Report extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<User>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, "user_id");
     }
 
+    /**
+     * @return BelongsTo<Office>
+     */
     public function office(): BelongsTo
     {
         return $this->belongsTo(Office::class, "office_id");
     }
 
+    /**
+     * @return BelongsTo<AnalysisSession>
+     */
     public function session(): BelongsTo
     {
         return $this->belongsTo(AnalysisSession::class, "session_id");

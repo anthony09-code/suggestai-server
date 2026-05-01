@@ -30,16 +30,25 @@ class Office extends Model
         ];
     }
 
+    /**
+     * @return HasMany<Feedback, Office>
+     */
     public function feedbacks(): HasMany
     {
         return $this->hasMany(Feedback::class, "office_id");
     }
 
+    /**
+     * @return HasMany<Report, Office>
+     */
     public function reports(): HasMany
     {
         return $this->hasMany(Report::class, "office_id");
     }
 
+    /**
+     * @return HasMany<Topic, Office>
+     */
     public function topics(): HasMany
     {
         return $this->hasMany(Topic::class, "office_id");

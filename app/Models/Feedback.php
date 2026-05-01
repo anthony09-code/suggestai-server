@@ -33,11 +33,17 @@ class Feedback extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Student, Feedback>
+     */
     public function student(): BelongsTo
     {
         return $this->belongsTo(Student::class, "student_id");
     }
 
+    /**
+     * @return BelongsTo<Office, Feedback>
+     */
     public function office(): BelongsTo
     {
         return $this->belongsTo(Office::class, "office_id");
