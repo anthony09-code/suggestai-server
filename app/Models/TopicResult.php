@@ -34,16 +34,26 @@ class TopicResult extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Feedback, TopicResult>
+     */
+
     public function feedback(): BelongsTo
     {
         return $this->belongsTo(Feedback::class, "feedback_id");
     }
 
+    /**
+     * @return BelongsTo<Topic, TopicResult>
+     */
     public function topic(): BelongsTo
     {
         return $this->belongsTo(Topic::class, "topic_id");
     }
 
+    /**
+     * @return BelongsTo<Office, TopicResult>
+     */
     public function office(): BelongsTo
     {
         return $this->belongsTo(Office::class, "office_id");

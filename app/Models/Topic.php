@@ -32,11 +32,17 @@ class Topic extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Office, Topic>
+     */
     public function office(): BelongsTo
     {
         return $this->belongsTo(Office::class, "office_id");
     }
 
+    /**
+     * @return HasMany<TopicResult, Topic>
+     */
     public function topic_result(): HasMany
     {
         return $this->hasMany(TopicResult::class, "topic_id");

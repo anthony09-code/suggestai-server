@@ -31,11 +31,17 @@ class AnalysisSession extends Model
         "completed_at" => "datetime",
     ];
 
+    /**
+     * @return BelongsTo<Office, AnalysisSession>
+     */
     public function office(): BelongsTo
     {
         return $this->belongsTo(Office::class, "office_id");
     }
 
+    /**
+     * @return BelongsTo<User, AnalysisSession>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, "user_id");
