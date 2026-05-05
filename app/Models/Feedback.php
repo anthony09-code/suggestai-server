@@ -24,15 +24,6 @@ class Feedback extends Model
 
     protected $table = "feedbacks";
 
-    protected function casts(): array
-    {
-        return [
-            "status" => "string",
-            "is_anonymous" => "boolean",
-            "is_summarized" => "boolean",
-        ];
-    }
-
     /**
      * @return BelongsTo<Student, Feedback>
      */

@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -22,6 +23,7 @@ use Laravel\Sanctum\HasApiTokens;
         "is_active",
     ]),
 ]
+#[Hidden(["google_token", "google_refresh_token"])]
 class Student extends Authenticatable
 {
     use HasUlids, HasApiTokens, HasFactory, Notifiable;
