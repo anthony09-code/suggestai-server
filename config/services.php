@@ -39,4 +39,12 @@ return [
         "client_secret" => env("GOOGLE_CLIENT_SECRET"),
         "redirect" => env("GOOGLE_REDIRECT_URI"),
     ],
+
+    "turnstile" => [
+        "secret" => env("CLOUDFLARE_TURNSTILE_SECRET"),
+    ],
+
+    "bertopic" => [
+        "url" => env("BERTOPIC_URL", "http://127.0.0.1:8001"),
+    ],
 ];

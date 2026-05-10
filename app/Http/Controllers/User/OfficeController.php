@@ -5,35 +5,30 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\CreateOfficeRequest;
 use App\Http\Requests\User\UpdateOfficeRequest;
+use App\Http\Resources\OfficeResource;
 use App\Models\Office;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class OfficeController extends Controller
 {
-    public function index(Request $request): JsonResponse
+    public function index(): JsonResponse
     {
         $offices = Office::query()->orderBy("office_name")->get();
 
-        return response()->json([
-            "success" => true,
-            "data" => $offices,
+        return $this->success("Offices retrieved.", [
+            "data" => OfficeResource::collection($offices),
         ]);
     }
 
     public function create_office(CreateOfficeRequest $request): JsonResponse
     {
-        $office = Office::create([
-            "office_name" => $request->office_name,
-            "description" => $request->description,
-            "is_active" => $request->is_active ?? true,
-        ]);
+        $office = Office::create($request->validated());
 
-        return response()->json(
+        return $this->success(
+            "Office created successfully.",
             [
-                "success" => true,
-                "message" => "Office created successfully.",
-                "data" => $office,
+                "data" => new OfficeResource($office),
             ],
             201,
         );
@@ -45,10 +40,8 @@ class OfficeController extends Controller
     ): JsonResponse {
         $office->update($request->validated());
 
-        return response()->json([
-            "success" => true,
-            "message" => "Office updated successfully.",
-            "data" => $office,
+        return $this->success("Office updated successfully.", [
+            "data" => new OfficeResource($office),
         ]);
     }
 
@@ -56,9 +49,6 @@ class OfficeController extends Controller
     {
         $office->delete();
 
-        return response()->json([
-            "success" => true,
-            "message" => "Office deleted successfully",
-        ]);
+        return $this->success("Office deleted successfully.");
     }
 }
