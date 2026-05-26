@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,7 +15,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
         "feedback_count",
         "topic_count",
         "status",
-        "error_message",
+        "date_from",
+        "date_to",
         "started_at",
         "completed_at",
     ]),
@@ -27,6 +28,8 @@ class AnalysisSession extends Model
     protected $table = "analysis_sessions";
 
     protected $casts = [
+        "date_from" => "datetime",
+        "date_to" => "datetime",
         "started_at" => "datetime",
         "completed_at" => "datetime",
     ];
