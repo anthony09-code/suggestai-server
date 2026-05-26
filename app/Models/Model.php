@@ -8,7 +8,8 @@ class Model extends BaseModel
     public function resolveRouteBinding($value, $field = null): ?static
     {
         return static::query()
-            ->where($field ?? "id", strtolower($value))
+            // ->where($field ?? "id", strtolower($value))
+            ->where($field ?? $this->getRouteKeyName(), $value)
             ->firstOrFail();
     }
 }

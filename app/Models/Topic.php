@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[
     Fillable([
         "office_id",
+        "session_id",
         "label",
         "keywords",
         "feedback_count",
@@ -46,5 +47,13 @@ class Topic extends Model
     public function topic_result(): HasMany
     {
         return $this->hasMany(TopicResult::class, "topic_id");
+    }
+
+    /**
+     * @return BelongsTo<AnalysisSession, Topic>
+     */
+    public function session(): BelongsTo
+    {
+        return $this->belongsTo(AnalysisSession::class, "session_id");
     }
 }

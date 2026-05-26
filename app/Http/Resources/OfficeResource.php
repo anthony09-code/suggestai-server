@@ -21,9 +21,9 @@ class OfficeResource extends JsonResource
             "description" => $this->description,
             "is_active" => $this->is_active,
             "access_link" => $this->access_link,
-            "qr_code_url" => $this->qr_code
-                ? Storage::disk("public")->url($this->qr_code)
-                : null,
+            "color" => $this->color,
+            "image_url" => $this->image_url,
+            "qr_code_url" => $this->qr_code_url,
             "created_at" => $this->created_at,
             "updated_at" => $this->updated_at,
         ];

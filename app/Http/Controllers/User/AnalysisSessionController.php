@@ -2,51 +2,95 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Pagination\PaginationMeta;
 use App\Http\Requests\User\AnalyzeOfficeRequest;
 use App\Http\Resources\AnalysisSessionResource;
+use App\Jobs\ProcessBertopicAnalysis;
 use App\Models\AnalysisSession;
 use App\Models\Feedback;
 use App\Models\Office;
 use App\Services\BertopicService;
+use App\Services\CacheService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Filters\FeedbackFilter;
 
 class AnalysisSessionController extends Controller
 {
-    public function __construct(private BertopicService $bertopicService) {}
+    private const CACHE_TTL = 300;
 
-    public function index(): JsonResponse
+    public function __construct(
+        private BertopicService $bertopicService,
+        private CacheService $cache,
+    ) {}
+
+    public function index(Request $request): JsonResponse
     {
-        $sessions = AnalysisSession::query()
-            ->with(["office", "user"])
-            ->orderBy("created_at", "desc")
-            ->get();
+        $page = $request->get("page", 1);
+        $perPage = $request->get("per_page", 15);
+        $status = $request->get("status");
+        $key = "sessions.all.page.{$page}.per_page.{$perPage}.status.{$status}";
+
+        $sessions = $this->cache->remember(
+            $key,
+            self::CACHE_TTL,
+            fn() => AnalysisSession::query()
+                ->with(["office", "user"])
+                ->when($status, fn($q) => $q->where("status", $status))
+                ->orderBy("created_at", "desc")
+                ->paginate($perPage),
+        );
 
         return $this->success("Sessions retrieved.", [
             "data" => AnalysisSessionResource::collection($sessions),
+            "pagination" => PaginationMeta::make($sessions),
         ]);
     }
 
-    public function get_by_office(Office $office): JsonResponse
-    {
-        $sessions = AnalysisSession::query()
-            ->with(["user"])
-            ->where("office_id", $office->id)
-            ->orderBy("created_at", "desc")
-            ->get();
+    public function get_by_office(
+        Request $request,
+        Office $office,
+    ): JsonResponse {
+        $page = $request->get("page", 1);
+        $perPage = $request->get("per_page", 15);
+        $status = $request->get("status");
+        $key = "sessions.office.{$office->id}.page.{$page}.per_page.{$perPage}.status.{$status}";
+
+        $sessions = $this->cache->remember(
+            $key,
+            self::CACHE_TTL,
+            fn() => AnalysisSession::query()
+                ->with(["user"])
+                ->where("office_id", $office->id)
+                ->when($status, fn($q) => $q->where("status", $status))
+                ->orderBy("created_at", "desc")
+                ->paginate($perPage),
+        );
 
         return $this->success("Sessions retrieved.", [
             "data" => AnalysisSessionResource::collection($sessions),
+            "pagination" => PaginationMeta::make($sessions),
         ]);
     }
 
     public function show(AnalysisSession $session): JsonResponse
     {
-        $session->load(["office", "user", "topics", "topicResults.feedback"]);
+        $key = "sessions.{$session->id}";
+
+        $data = $this->cache->remember(
+            $key,
+            self::CACHE_TTL,
+            fn() => $session->load([
+                "office",
+                "user",
+                "topics",
+                "topicResults.feedback",
+            ]),
+        );
 
         return $this->success("Session retrieved.", [
-            "data" => new AnalysisSessionResource($session),
+            "data" => new AnalysisSessionResource($data),
         ]);
     }
 
@@ -54,10 +98,15 @@ class AnalysisSessionController extends Controller
         AnalyzeOfficeRequest $request,
         Office $office,
     ): JsonResponse {
-        $feedbacks = Feedback::query()
-            ->where("office_id", $office->id)
-            ->where("status", "pending")
-            ->get();
+        $query = Feedback::query()->where("office_id", $office->id);
+
+        $filters = [
+            "date" => $request->input("date", "all"),
+            "status" => $request->input("status", "pending"),
+            "anonymous" => $request->input("anonymous", "all"),
+        ];
+
+        $feedbacks = FeedbackFilter::apply($query, $filters)->get();
 
         if ($feedbacks->isEmpty()) {
             return $this->error(
@@ -71,52 +120,41 @@ class AnalysisSessionController extends Controller
             "user_id" => auth()->id(),
             "feedback_count" => $feedbacks->count(),
             "topic_count" => 0,
-            "status" => "processing",
+            "status" => "pending",
+            "date_from" => $request->input(
+                "date_from",
+                now()->toDateTimeString(),
+            ),
+            "date_to" => $request->input("date_to", now()->toDateTimeString()),
             "started_at" => now(),
         ]);
 
-        try {
-            $result = $this->bertopicService->analyze(
-                officeId: $office->id,
-                sessionId: $session->id,
-                documents: $feedbacks->pluck("raw_text")->toArray(),
-                feedbackIds: $feedbacks->pluck("id")->toArray(),
-            );
+        ProcessBertopicAnalysis::dispatch(
+            session: $session,
+            office: $office,
+            feedbackIds: $feedbacks->pluck("id")->toArray(),
+        );
 
-            $session->update([
-                "topic_count" => $result["topic_count"],
-                "status" => "completed",
-                "completed_at" => now(),
-            ]);
-
-            return $this->success(
-                "Analysis completed. {$result["topic_count"]} topics found from {$feedbacks->count()} feedbacks.",
-                ["data" => $session->fresh(["topics", "nlpResults"])],
-                201,
-            );
-        } catch (\Exception $e) {
-            $session->update([
-                "status" => "failed",
-                "error_message" => $e->getMessage(),
-                "completed_at" => now(),
-            ]);
-
-            Log::error("Analysis failed", [
-                "office_id" => $office->id,
-                "session_id" => $session->id,
-                "error" => $e->getMessage(),
-            ]);
-
-            return $this->error(
-                "Analysis failed. Please try again later.",
-                500,
-            );
-        }
+        return $this->success(
+            "Analysis queued. {$feedbacks->count()} feedbacks will be processed shortly.",
+            ["data" => new AnalysisSessionResource($session)],
+            202,
+        );
     }
 
     public function delete(AnalysisSession $session): JsonResponse
     {
+        $officeId = $session->office_id;
+
         $session->delete();
+
+        $this->cache->forget_many([
+            "sessions.{$session->id}",
+            "dashboard.overview",
+            "dashboard.office.{$officeId}",
+        ]);
+
+        $this->cache->forget_pattern("sessions.");
 
         return $this->success("Session deleted successfully.");
     }

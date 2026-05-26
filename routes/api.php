@@ -2,6 +2,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User\UserAuthController;
 use App\Http\Controllers\User\OfficeController;
+use App\Http\Controllers\User\FeedbackController;
+use App\Http\Controllers\User\FeedbackExportController;
+use App\Http\Controllers\User\AnalysisSessionController;
 
 Route::post("/login", [UserAuthController::class, "user_login"])->middleware(
     "throttle:login",
@@ -51,6 +54,33 @@ Route::middleware(["auth:sanctum", "throttle:api"])->group(function () {
             Route::delete("/{office}", [
                 OfficeController::class,
                 "delete_office",
+            ])->name("delete");
+        });
+
+    Route::prefix("feedbacks")
+        ->name("feedbacks.")
+        ->group(function () {
+            Route::get("/", [FeedbackController::class, "index"])->name(
+                "index",
+            );
+
+            Route::get("/export/{office:access_link}", [
+                FeedbackExportController::class,
+                "export",
+            ])->name("feedbacks.export");
+
+            Route::get("/office/{office:access_link}", [
+                FeedbackController::class,
+                "get_by_office",
+            ])->name("by_office");
+
+            Route::get("/{feedback}", [
+                FeedbackController::class,
+                "show",
+            ])->name("show");
+            Route::delete("/{feedback}", [
+                FeedbackController::class,
+                "delete_feedback",
             ])->name("delete");
         });
 

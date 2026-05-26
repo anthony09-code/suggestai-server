@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->string("google_id")->unique();
             $table->string("name");
             $table->string("email")->unique();
-            $table->string("profile_picture")->nullable();
+            $table->text("profile_picture")->nullable();
             $table->string("google_token")->nullable();
             $table->string("google_refresh_token")->nullable();
             $table->boolean("is_active")->default(true);

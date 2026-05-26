@@ -10,12 +10,13 @@ class FeedbackRequest extends FormRequest
         return auth("student")->check();
     }
 
+    /**
+     * @return array<string, array<int, string>>
+     */
     public function rules(): array
     {
         return [
-            "raw_text" => ["required", "string", "min:10", "max:1000"],
-            "language" => ["required", "in:english,tagalog,taglish"],
-            "submission_method" => ["required", "in:qr_code,manual_pick"],
+            "raw_text" => ["required", "string", "min:10", "max:250"],
         ];
     }
 
@@ -25,8 +26,6 @@ class FeedbackRequest extends FormRequest
             "raw_text.required" => "Please enter your feedback.",
             "raw_text.min" => "Feedback must be at least 10 characters.",
             "raw_text.max" => "Feedback must not exceed 1000 characters.",
-            "language.required" =>
-                "Please select the language of your feedback.",
         ];
     }
 }

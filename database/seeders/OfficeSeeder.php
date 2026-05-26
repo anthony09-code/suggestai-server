@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 use App\Models\Office;
 
 class OfficeSeeder extends Seeder
@@ -51,6 +52,8 @@ class OfficeSeeder extends Seeder
                 "office_name" => trim($office_name),
                 "description" => trim($description),
                 "is_active" => true,
+                "access_link" =>
+                    Str::slug(trim($office_name)) . "-" . Str::random(8),
             ]);
 
             $this->command->info("Created: {$office_name}");

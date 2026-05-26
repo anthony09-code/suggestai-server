@@ -10,8 +10,30 @@ class AnalyzeOfficeRequest extends FormRequest
         return true;
     }
 
+    /**
+     * @return array<string, array<int, string>>
+     */
     public function rules(): array
     {
-        return [];
+        return [
+            "date" => [
+                "sometimes",
+                "string",
+                "in:all,today,7days,30days,90days,wtd,mtd,qtd,ytd",
+            ],
+            "status" => ["sometimes", "string", "in:all,pending,processed"],
+            "anonymous" => [
+                "sometimes",
+                "string",
+                "in:all,anonymous,identified",
+            ],
+            "date_from" => ["sometimes", "nullable", "date"],
+            "date_to" => [
+                "sometimes",
+                "nullable",
+                "date",
+                "after_or_equal:date_from",
+            ],
+        ];
     }
 }
