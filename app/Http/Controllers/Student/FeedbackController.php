@@ -23,7 +23,7 @@ class FeedbackController extends Controller
             return redirect()->route("student.auth.google");
         }
 
-        return view("student.feedback.form", compact("office"));
+        return view("form.form", compact("office"));
     }
 
     public function store(
@@ -40,12 +40,18 @@ class FeedbackController extends Controller
             "student_id" => auth("student")->id(),
             "office_id" => $office->id,
             "raw_text" => $request->raw_text,
+            "is_anonymous" => $request->boolean("is_anonymous"),
             "status" => "pending",
         ]);
 
-        return back()->with(
-            "success",
-            "Your feedback has been submitted successfully!",
+        return redirect()->route(
+            "student.feedback.success",
+            $office->access_link,
         );
+    }
+
+    public function success_page(Office $office): View
+    {
+        return view("form.success", compact("office"));
     }
 }

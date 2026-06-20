@@ -7,11 +7,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class FeedbackResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
         return [
@@ -20,6 +15,7 @@ class FeedbackResource extends JsonResource
             "status" => $this->status,
             "is_anonymous" => $this->is_anonymous,
             "is_summarized" => $this->is_summarized,
+            "session_id" => $this->session_id,
             "created_at" => $this->created_at?->toISOString(),
             "student" => $this->whenLoaded(
                 "student",

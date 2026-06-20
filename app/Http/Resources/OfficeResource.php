@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
+// use Illuminate\Support\Facades\Storage;
 
 class OfficeResource extends JsonResource
 {
@@ -22,8 +22,8 @@ class OfficeResource extends JsonResource
             "is_active" => $this->is_active,
             "access_link" => $this->access_link,
             "color" => $this->color,
-            "image_url" => $this->image_url,
-            "qr_code_url" => $this->qr_code_url,
+            "qr_code" => $this->qr_code_url,
+            "image" => $this->image_url,
             "created_at" => $this->created_at,
             "updated_at" => $this->updated_at,
         ];

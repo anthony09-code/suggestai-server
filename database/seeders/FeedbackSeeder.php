@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Carbon\Carbon;
 use App\Models\Feedback;
 use App\Models\Student;
 use App\Models\Office;
@@ -46,13 +47,17 @@ class FeedbackSeeder extends Seeder
                 continue;
             }
 
+            $createdAt = fake()->dateTimeBetween("-1 year", "now");
+
             Feedback::create([
                 "student_id" => $students[array_rand($students)],
                 "office_id" => $officeId,
                 "raw_text" => $raw_text,
                 "status" => "pending",
                 "is_anonymous" => (bool) rand(0, 1),
-                "is_summarized" => (bool) rand(0, 1),
+                "is_summarized" => false,
+                "created_at" => $createdAt,
+                "updated_at" => $createdAt,
             ]);
 
             $created++;

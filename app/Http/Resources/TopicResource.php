@@ -21,9 +21,8 @@ class TopicResource extends JsonResource
             "feedback_count" => $this->feedback_count,
             "cluster_x" => $this->cluster_x,
             "cluster_y" => $this->cluster_y,
-            "office" => new OfficeResource($this->whenLoaded("office")),
             "results" => TopicResultResource::collection(
-                $this->whenLoaded("topic_result"),
+                $this->whenLoaded("topicResults"),
             ),
             "created_at" => $this->created_at,
         ];
