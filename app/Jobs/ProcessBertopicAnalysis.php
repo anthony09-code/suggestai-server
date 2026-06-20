@@ -19,15 +19,17 @@ class ProcessBertopicAnalysis implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries = 3;
-    public int $timeout = 300;
+
+    public int $timeout = 700;
+
     public int $backoff = 60;
 
     /**
-     * Create a new job instance.
+     * @param string[] $feedbackIds
      */
     public function __construct(
-        private AnalysisSession $session,
-        private Office $office,
+        private string $sessionId,
+        private string $officeId,
         private array $feedbackIds,
     ) {
         $this->onQueue("analysis");
@@ -40,19 +42,22 @@ class ProcessBertopicAnalysis implements ShouldQueue
         BertopicService $bertopicService,
         CacheService $cache,
     ): void {
+        $session = AnalysisSession::findOrFail($this->sessionId);
+        $office = Office::findOrFail($this->officeId);
+
         $feedbacks = Feedback::query()
             ->whereIn("id", $this->feedbackIds)
             ->get();
 
         try {
             $result = $bertopicService->analyze(
-                officeId: $this->office->id,
-                sessionId: $this->session->id,
+                officeId: $office->id,
+                sessionId: $session->id,
                 documents: $feedbacks->pluck("raw_text")->toArray(),
                 feedbackIds: $feedbacks->pluck("id")->toArray(),
             );
 
-            $this->session->update([
+            $session->update([
                 "topic_count" => $result["topic_count"],
                 "status" => "completed",
                 "completed_at" => now(),
@@ -62,30 +67,31 @@ class ProcessBertopicAnalysis implements ShouldQueue
                 ->whereIn("id", $this->feedbackIds)
                 ->update([
                     "status" => "processed",
-                    "session_id" => $this->session->id,
+                    "session_id" => $session->id,
                 ]);
 
             $cache->forget_many([
                 "sessions.all.page.1.per_page.15.status.",
-                "sessions.office.{$this->office->id}.page.1.per_page.15.status.",
+                "sessions.office.{$office->id}.page.1.per_page.15.status.",
+                "sessions.{$session->id}",
                 "dashboard.overview",
-                "dashboard.office.{$this->office->id}",
+                "dashboard.office.{$office->id}",
             ]);
 
             Log::info("Analysis completed", [
-                "office_id" => $this->office->id,
-                "session_id" => $this->session->id,
+                "office_id" => $office->id,
+                "session_id" => $session->id,
                 "topic_count" => $result["topic_count"],
             ]);
-        } catch (\Exception $e) {
-            $this->session->update([
+        } catch (\Throwable $e) {
+            $session->update([
                 "status" => "failed",
                 "completed_at" => now(),
             ]);
 
-            Log::error("Analysis failed", [
-                "office_id" => $this->office->id,
-                "session_id" => $this->session->id,
+            Log::error("Analysis attempt failed", [
+                "office_id" => $office->id,
+                "session_id" => $session->id,
                 "error" => $e->getMessage(),
             ]);
 
@@ -93,16 +99,26 @@ class ProcessBertopicAnalysis implements ShouldQueue
         }
     }
 
+    /**
+     * Handle a job failure after exhausting all retries.
+     */
     public function failed(\Throwable $e): void
     {
-        $this->session->update([
-            "status" => "failed",
-            "completed_at" => now(),
-        ]);
+        // $session = AnalysisSession::find($this->sessionId);
+        $session = AnalysisSession::query()
+            ->where("id", $this->sessionId)
+            ->first();
+
+        if ($session) {
+            $session->update([
+                "status" => "failed",
+                "completed_at" => now(),
+            ]);
+        }
 
         Log::error("Analysis job permanently failed", [
-            "office_id" => $this->office->id,
-            "session_id" => $this->session->id,
+            "office_id" => $this->officeId,
+            "session_id" => $this->sessionId,
             "error" => $e->getMessage(),
         ]);
     }

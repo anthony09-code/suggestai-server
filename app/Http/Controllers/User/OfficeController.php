@@ -9,6 +9,7 @@ use App\Http\Resources\OfficeResource;
 use App\Models\Office;
 use App\Services\CacheService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
 
 class OfficeController extends Controller
 {
@@ -29,6 +30,13 @@ class OfficeController extends Controller
 
         return $this->success("Offices retrieved.", [
             "data" => $offices,
+        ]);
+    }
+
+    public function show(Office $office): JsonResponse
+    {
+        return $this->success("Office retrieved.", [
+            "data" => new OfficeResource($office),
         ]);
     }
 
@@ -75,5 +83,24 @@ class OfficeController extends Controller
         ]);
 
         return $this->success("Office deleted successfully.");
+    }
+
+    public function downloadQr(string $accessLink)
+    {
+        $office = Office::where("access_link", $accessLink)->firstOrFail();
+
+        $path = str_replace(asset("storage") . "/", "", $office->qr_code);
+
+        if (!Storage::disk("public")->exists($path)) {
+            abort(404, "QR code not found.");
+        }
+
+        return Storage::disk("public")->download(
+            $path,
+            "{$office->access_link}-qr.svg",
+            [
+                "Content-Type" => "image/svg+xml",
+            ],
+        );
     }
 }

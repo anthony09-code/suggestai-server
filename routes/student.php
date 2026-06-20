@@ -17,9 +17,12 @@ Route::prefix("student")
             "handle_google_callback",
         ])->name("auth.google.callback");
 
-        Route::get("/logout", [StudentAuthController::class, "logout"])->name(
-            "student.logout",
-        );
+        Route::middleware("auth:student")->group(function () {
+            Route::post("/logout", [
+                StudentAuthController::class,
+                "logout",
+            ])->name("logout");
+        });
 
         Route::get("/feedback/{office:access_link}", [
             FeedbackController::class,
@@ -29,5 +32,12 @@ Route::prefix("student")
         Route::post("/feedback/{office:access_link}", [
             FeedbackController::class,
             "store",
-        ])->name("feedback.store");
+        ])
+            ->name("feedback.store")
+            ->middleware("throttle:feedback");
+
+        Route::get("/feedback/{office:access_link}/success", [
+            FeedbackController::class,
+            "success_page",
+        ])->name("feedback.success");
     });

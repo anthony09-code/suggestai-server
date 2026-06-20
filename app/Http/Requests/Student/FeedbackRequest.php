@@ -2,6 +2,7 @@
 namespace App\Http\Requests\Student;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Rules\NotGibberish;
 
 class FeedbackRequest extends FormRequest
 {
@@ -16,16 +17,26 @@ class FeedbackRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "raw_text" => ["required", "string", "min:10", "max:250"],
+            "raw_text" => [
+                "required",
+                "string",
+                "min:20",
+                "max:250",
+                new NotGibberish(),
+            ],
+            "is_anonymous" => ["nullable", "boolean"],
         ];
     }
 
     public function messages(): array
     {
         return [
-            "raw_text.required" => "Please enter your feedback.",
-            "raw_text.min" => "Feedback must be at least 10 characters.",
-            "raw_text.max" => "Feedback must not exceed 1000 characters.",
+            "raw_text.required" =>
+                "Please write your feedback before submitting.",
+            "raw_text.min" =>
+                "Your feedback is too short. Please write at least 20 characters.",
+            "raw_text.max" =>
+                "Your feedback is too long. Maximum 2000 characters.",
         ];
     }
 }

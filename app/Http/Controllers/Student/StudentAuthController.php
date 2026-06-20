@@ -39,23 +39,33 @@ class StudentAuthController extends Controller
 
             auth("student")->login($student);
 
-            return redirect()->intended(
-                route("student.offices", session("intended_office", "/")),
-            );
+            $intendedOffice = session()->pull("intended_office");
+
+            if ($intendedOffice) {
+                return redirect()->route(
+                    "student.feedback.show",
+                    $intendedOffice,
+                );
+            }
+
+            return redirect("/");
         } catch (\Exception $e) {
-            return redirect()
-                ->route("student.auth.google")
-                ->withErrors([
-                    "error" => "Google login failed. Please try again.",
-                ]);
+            logger()->error("Google callback failed: " . $e->getMessage());
+            abort(500, $e->getMessage());
         }
     }
 
     public function logout(Request $request): RedirectResponse
     {
+        $intendedOffice = $request->input("office");
+
         auth("student")->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
+        if ($intendedOffice) {
+            session()->put("intended_office", $intendedOffice);
+        }
 
         return redirect()->route("student.auth.google");
     }

@@ -1,6 +1,2 @@
 full_name,email,password,is_active,last_login
 Anthony Tumalad,anthony@example.com,password123,1,2026-04-30 10:00:00
-Jane Doe,jane@example.com,password123,1,2026-04-30 11:00:00
-John Smith,john@example.com,password123,1,2026-04-30 12:00:00
-Maria Cruz,maria@example.com,password123,1,2026-04-30 13:00:00
-Peter Lim,peter@example.com,password123,1,2026-04-30 14:00:00

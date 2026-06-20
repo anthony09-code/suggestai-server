@@ -21,17 +21,14 @@ Route::middleware(["auth:sanctum", "throttle:api"])->group(function () {
                 UserAuthController::class,
                 "user_logout",
             ])->name("logout");
-
             Route::post("/logout-all", [
                 UserAuthController::class,
                 "user_logout_all",
             ])->name("logout-all");
-
             Route::get("/sessions", [
                 UserAuthController::class,
                 "user_sessions",
             ])->name("sessions");
-
             Route::delete("/sessions/{tokenId}", [
                 UserAuthController::class,
                 "user_revoke_session",
@@ -42,7 +39,10 @@ Route::middleware(["auth:sanctum", "throttle:api"])->group(function () {
         ->name("offices.")
         ->group(function () {
             Route::get("/", [OfficeController::class, "index"])->name("index");
-
+            Route::get("/{office:access_link}", [
+                OfficeController::class,
+                "show",
+            ])->name("show");
             Route::post("/", [OfficeController::class, "create_office"])->name(
                 "create",
             );
@@ -50,7 +50,6 @@ Route::middleware(["auth:sanctum", "throttle:api"])->group(function () {
                 OfficeController::class,
                 "update_office",
             ])->name("update");
-
             Route::delete("/{office}", [
                 OfficeController::class,
                 "delete_office",
@@ -60,20 +59,20 @@ Route::middleware(["auth:sanctum", "throttle:api"])->group(function () {
     Route::prefix("feedbacks")
         ->name("feedbacks.")
         ->group(function () {
+            Route::get("/stats", [FeedbackController::class, "stats"])->name(
+                "stats",
+            );
             Route::get("/", [FeedbackController::class, "index"])->name(
                 "index",
             );
-
             Route::get("/export/{office:access_link}", [
                 FeedbackExportController::class,
                 "export",
             ])->name("feedbacks.export");
-
             Route::get("/office/{office:access_link}", [
                 FeedbackController::class,
                 "get_by_office",
             ])->name("by_office");
-
             Route::get("/{feedback}", [
                 FeedbackController::class,
                 "show",
@@ -87,27 +86,32 @@ Route::middleware(["auth:sanctum", "throttle:api"])->group(function () {
     Route::prefix("sessions")
         ->name("sessions.")
         ->group(function () {
+            Route::get("/stats", [
+                AnalysisSessionController::class,
+                "stats",
+            ])->name("stats");
             Route::get("/", [AnalysisSessionController::class, "index"])->name(
                 "index",
             );
-            Route::get("/{session}", [
-                AnalysisSessionController::class,
-                "show",
-            ])->name("show");
-
-            Route::get("/office/{office}", [
+            Route::get("/office/{office:access_link}", [
                 AnalysisSessionController::class,
                 "get_by_office",
             ])->name("by_office");
-
-            Route::post("/analyze/{office}", [
+            Route::post("/analyze/{office:access_link}", [
                 AnalysisSessionController::class,
                 "analyze",
             ])->name("analyze");
-
             Route::delete("/{session}", [
                 AnalysisSessionController::class,
                 "delete",
             ])->name("delete");
+            Route::get("/{session}/report/download", [
+                AnalysisSessionController::class,
+                "download",
+            ])->name("report.download");
+            Route::get("/{session}", [
+                AnalysisSessionController::class,
+                "show",
+            ])->name("show");
         });
 });

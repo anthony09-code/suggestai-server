@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Models\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 ]
 class Topic extends Model
 {
-    use HasUuids, HasFactory;
+    use HasUlids, HasFactory;
 
     protected $table = "topics";
 
@@ -44,7 +44,7 @@ class Topic extends Model
     /**
      * @return HasMany<TopicResult, Topic>
      */
-    public function topic_result(): HasMany
+    public function topicResults(): HasMany
     {
         return $this->hasMany(TopicResult::class, "topic_id");
     }

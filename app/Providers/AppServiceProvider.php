@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use App\Http\RateLimiters\User\ApiRateLimiter;
+use App\Http\RateLimiters\Student\FeedbackRateLimiter;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,5 +22,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         new ApiRateLimiter()->register();
+        new FeedbackRateLimiter()->register();
     }
 }
