@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
     body {
       font-family: DejaVu Sans, sans-serif;
@@ -182,6 +187,7 @@
     }
   </style>
 </head>
+
 <body>
 
   {{-- header --}}
@@ -224,7 +230,8 @@
     <div class="topic">
       <div class="topic-header">
         <div class="topic-label">{{ $i + 1 }}. {{ $topic['label'] }}</div>
-        <div class="topic-count">{{ $topic['feedback_count'] }} feedback{{ $topic['feedback_count'] !== 1 ? 's' : '' }}</div>
+        <div class="topic-count">{{ $topic['feedback_count'] }} feedback{{ $topic['feedback_count'] !== 1 ? 's' : '' }}
+        </div>
       </div>
       <div class="topic-body">
 
@@ -244,6 +251,10 @@
           @foreach ($topic['sample_feedbacks'] as $feedback)
             <div class="feedback-item">
               <div class="feedback-text">{{ $feedback['text'] ?? $feedback['cleaned_text'] ?? '—' }}</div>
+              <div class="feedback-score">
+                {{ number_format($feedback['confidence_score'], 1) }}%
+              </div>
+
             </div>
           @endforeach
         @endif
@@ -254,8 +265,10 @@
 
   {{-- footer --}}
   <div class="footer">
-    {{ $report['office'] }} &nbsp;·&nbsp; {{ $report['topic_count'] }} topics &nbsp;·&nbsp; {{ $report['feedback_count'] }} feedbacks analyzed
+    {{ $report['office'] }} &nbsp;·&nbsp; {{ $report['topic_count'] }} topics &nbsp;·&nbsp;
+    {{ $report['feedback_count'] }} feedbacks analyzed
   </div>
 
 </body>
+
 </html>
