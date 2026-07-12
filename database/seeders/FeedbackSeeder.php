@@ -30,7 +30,9 @@ class FeedbackSeeder extends Seeder
 
         fgetcsv($file);
 
-        $officeId = Office::where("office_name", "SASO Office")->value("id");
+        $officeId = Office::where("office_name", "Library Office")->value(
+            "id",
+        );
 
         $students = Student::pluck("id")->toArray();
 

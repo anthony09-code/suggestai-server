@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
         "office_id",
         "session_id",
         "label",
+        "description",
         "keywords",
         "feedback_count",
         "cluster_x",
