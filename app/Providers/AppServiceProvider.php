@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        new ApiRateLimiter()->register();
-        new FeedbackRateLimiter()->register();
+        (new ApiRateLimiter())->register();
+        (new FeedbackRateLimiter())->register();
     }
 }
