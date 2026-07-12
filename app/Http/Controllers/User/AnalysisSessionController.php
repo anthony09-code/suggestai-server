@@ -121,6 +121,8 @@ class AnalysisSessionController extends Controller
             "date" => $request->input("date", "all"),
             "status" => $request->input("status", "pending"),
             "anonymous" => $request->input("anonymous", "all"),
+            "date_from" => $request->input("date_from"),
+            "date_to" => $request->input("date_to"),
         ];
 
         $feedbacks = FeedbackFilter::apply($query, $filters)->get();
@@ -138,11 +140,8 @@ class AnalysisSessionController extends Controller
             "feedback_count" => $feedbacks->count(),
             "topic_count" => 0,
             "status" => "pending",
-            "date_from" => $request->input(
-                "date_from",
-                now()->toDateTimeString(),
-            ),
-            "date_to" => $request->input("date_to", now()->toDateTimeString()),
+            "date_from" => $request->input("date_from") ?? now()->toDateTimeString(),
+            "date_to" => $request->input("date_to") ?? now()->toDateTimeString(),
             "started_at" => now(),
         ]);
 
@@ -247,7 +246,6 @@ class AnalysisSessionController extends Controller
                 "feedback_count" => $topic->feedback_count,
                 "sample_feedbacks" => $topic->topicResults
                     ->sortByDesc("confidence_score")
-                    ->take(5)
                     ->map(
                         fn($result) => [
                             "text" => $result->feedback?->raw_text,

@@ -100,6 +100,7 @@ class BertopicService
                     "office_id" => $officeId,
                     "session_id" => $sessionId,
                     "label" => $topic["label"],
+                    "description" => $topic["description"] ?? null,
                     "keywords" => $topic["keywords"],
                     "feedback_count" => $topic["feedback_count"],
                     "cluster_x" => $topic["cluster_x"] ?? null,

@@ -23,7 +23,13 @@ class FeedbackController extends Controller
         $page = $request->input("page", 1);
         $perPage = $request->input("per_page", 15);
 
-        $filters = $request->only(["date", "status", "anonymous"]);
+        $filters = $request->only([
+            "date",
+            "status",
+            "anonymous",
+            "date_from",
+            "date_to",
+        ]);
         $filterHash = md5(json_encode($filters));
 
         $key = "feedbacks.all.page.{$page}.per_page.{$perPage}.filter.{$filterHash}";
@@ -56,7 +62,14 @@ class FeedbackController extends Controller
         $page = $request->input("page", 1);
         $perPage = $request->input("per_page", 15);
 
-        $filters = $request->only(["date", "status", "anonymous"]);
+        $filters = $request->only([
+            "date",
+            "status",
+            "anonymous",
+            "date_from",
+            "date_to",
+        ]);
+
         $filterHash = md5(json_encode($filters));
 
         $key = "feedbacks.office.{$office->id}.page.{$page}.per_page.{$perPage}.filter.{$filterHash}";

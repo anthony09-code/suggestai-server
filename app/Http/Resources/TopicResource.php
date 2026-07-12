@@ -18,6 +18,7 @@ class TopicResource extends JsonResource
             "id" => $this->id,
             "label" => $this->label,
             "keywords" => $this->keywords,
+            "description" => $this->description,
             "feedback_count" => $this->feedback_count,
             "cluster_x" => $this->cluster_x,
             "cluster_y" => $this->cluster_y,

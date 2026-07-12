@@ -77,7 +77,7 @@
       border: 1px solid #e5e7eb;
       border-radius: 8px;
       overflow: hidden;
-      page-break-inside: avoid;
+      /*page-break-inside: avoid;*/
     }
 
     .topic-header {
@@ -85,6 +85,8 @@
       padding: 10px 14px;
       display: table;
       width: 100%;
+      page-break-inside: avoid;
+      page-break-after: avoid;
     }
 
     .topic-label {
@@ -146,6 +148,7 @@
       width: 100%;
       padding: 6px 0;
       border-bottom: 1px solid #f3f4f6;
+      page-break-inside: avoid;
     }
 
     .feedback-item:last-child {
@@ -237,11 +240,10 @@
 
         {{-- sample feedbacks --}}
         @if (!empty($topic['sample_feedbacks']))
-          <div class="feedbacks-label">Sample Feedbacks</div>
+          <div class="feedbacks-label">Feedbacks</div>
           @foreach ($topic['sample_feedbacks'] as $feedback)
             <div class="feedback-item">
               <div class="feedback-text">{{ $feedback['text'] ?? $feedback['cleaned_text'] ?? '—' }}</div>
-              <div class="feedback-score">{{ $feedback['confidence_score'] }}%</div>
             </div>
           @endforeach
         @endif

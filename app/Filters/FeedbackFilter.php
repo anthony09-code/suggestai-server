@@ -19,7 +19,12 @@ class FeedbackFilter
         }
 
         if (isset($filters["date"]) && $filters["date"] !== "all") {
-            self::applyDateFilter($query, $filters["date"]);
+            self::applyDateFilter(
+                $query,
+                $filters["date"],
+                $filters["date_from"] ?? null,
+                $filters["date_to"] ?? null,
+            );
         }
 
         return $query;
@@ -28,6 +33,9 @@ class FeedbackFilter
     protected static function applyDateFilter(
         Builder $query,
         string $range,
+        ?string $dateFrom = null,
+        ?string $dateTo = null,
+
     ): void {
         $now = now();
 
@@ -40,7 +48,30 @@ class FeedbackFilter
             "mtd" => $query->where("created_at", ">=", $now->startOfMonth()),
             "qtd" => $query->where("created_at", ">=", $now->startOfQuarter()),
             "ytd" => $query->where("created_at", ">=", $now->startOfYear()),
+            "custom" => self::applyCustomRange($query, $dateFrom, $dateTo),
             default => null,
         };
     }
+
+    protected static function applyCustomRange(
+        Builder $query,
+        ?string $dateFrom,
+        ?string $dateTo,
+    ): void {
+        if ($dateFrom) {
+            $query->where(
+                "created_at",
+                ">=",
+                Carbon::parse($dateFrom)->startOfDay(),
+            );
+        }
+        if ($dateTo) {
+            $query->where(
+                "created_at",
+                "<=",
+                Carbon::parse($dateTo)->endOfDay(),
+            );
+        }
+    }
+
 }
