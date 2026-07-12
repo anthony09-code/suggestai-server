@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
@@ -117,7 +118,7 @@ class FeedbackController extends Controller
             self::CACHE_TTL,
             function () use ($feedback) {
                 $feedback->load(["office", "student"]);
-                return new FeedbackResource($feedback)->resolve();
+                return (new FeedbackResource($feedback))->resolve();
             },
         );
         return $this->success("Feedback retrieved.", ["data" => $data]);

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use App\Models\Model;
@@ -96,7 +97,7 @@ class Office extends Model
     private static function generateQrCode(Office $office): string
     {
         $url = url("/student/feedback/{$office->access_link}");
-        $result = new SvgWriter()->write(new QrCode($url));
+        $result = (new SvgWriter())->write(new QrCode($url));
 
         $filename = "qrcodes/office-{$office->id}.svg";
         Storage::disk("public")->put($filename, $result->getString());
