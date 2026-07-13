@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL;
 use App\Http\RateLimiters\User\ApiRateLimiter;
 use App\Http\RateLimiters\Student\FeedbackRateLimiter;
 
@@ -23,5 +24,9 @@ class AppServiceProvider extends ServiceProvider
     {
         (new ApiRateLimiter())->register();
         (new FeedbackRateLimiter())->register();
+
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
     }
 }
